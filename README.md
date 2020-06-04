@@ -14,8 +14,8 @@ Ed25519 is performed on the twisted Edwards curve of Curve25519 on the x- und y-
 For native machine code in mpy-files see [here](https://docs.micropython.org/en/latest/develop/natmod.html).
 
 There are two modules in the `mpy-modules/` sub-directory:
-* For the SHA512 `mpy-modules/sha512/`, where I modfied [this](https://github.com/routar/C-SHA2) code.
-* For X25519 `mpy-modules/curve25519/`.
+* One for the SHA512 `mpy-modules/sha512/`, where I modfied [this](https://github.com/routar/C-SHA2) code.
+* And one for X25519 `mpy-modules/curve25519/`.
 
 The the resulting two mpy-files have have to be copied to a Pyboard.
 

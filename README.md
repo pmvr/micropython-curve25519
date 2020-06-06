@@ -26,7 +26,7 @@ Python script `x25519.py`
 
     Test vectors from https://tools.ietf.org/html/rfc8031#appendix-A
     Test 1: X25519: q = d*u
-    Computatation time: 46 ms
+    Computatation time: 45 ms
     q [hex/dec] = 66c7fb0d9f7090f777fa8493081ce8a4f174dbbbf9a36f16ba571206d4ddd548      46489245826987382655505058740283756869827209462947799117248009944518788765000
     Test 1 passed.
 
@@ -41,23 +41,23 @@ Python script `x25519.py`
 Python script `ed25519.py`
 
     Test 1: Length of message: 0 bytes
-    Computatation time: 104 ms
+    Computatation time: 101 ms
     Test 1 passed.
 
     Test 2: Length of message: 1 byte
-    Computatation time: 104 ms
+    Computatation time: 101 ms
     Test 2 passed.
 
     Test 3: Length of message: 2 bytes
-    Computatation time: 104 ms
+    Computatation time: 101 ms
     Test 3 passed.
 
     Test 4: Length of message: 1023 bytes
-    Computatation time: 113 ms
+    Computatation time: 110 ms
     Test 4 passed.
 
     Test 5: Length of message: 64 bytes
-    Computatation time: 105 ms
+    Computatation time: 102 ms
     Test 5 passed.    
 
 ## Warning

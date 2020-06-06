@@ -3,14 +3,14 @@
 #include "ec.h"
 
 const uint32_t a24R = 0x468ba6;
-const uint32_t p[9] = {0x00000000, 0x7fffffff, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffed};
+const uint32_t p[8] = {0x7fffffff, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffed};
 const uint32_t pR2 = 0x5a4;
 const uint32_t R = 38;
-const uint32_t sqrt_minus_486664R[9] = {0x00000000, 0x4038adb9, 0xa83f001e, 0xc1bcaf57, 0x688c332e, 0xa9fa8eee, 0xcb6e1095, 0xa7ab4e9e, 0x1baf4abd};
+const uint32_t sqrt_minus_486664R[8] = {0x4038adb9, 0xa83f001e, 0xc1bcaf57, 0x688c332e, 0xa9fa8eee, 0xcb6e1095, 0xa7ab4e9e, 0x1baf4abd};
 
 struct curve {
     uint32_t a24;
-    uint32_t p[9];
+    uint32_t p[8];
     uint32_t pR2;
 };
 
@@ -18,8 +18,7 @@ struct curve Curve;
 
 void random_z(uint32_t *z) {
     // TODO: a true random source should be provided
-    for (uint32_t i=0; i<8; i++) z[i] = 0xC3A50FE1;
-    z[8] = 0;
+    for (uint32_t i=0; i<7; i++) z[i] = 0xC3A50FE1;
     z[7] &= 0x7fffffff;
 }
 
@@ -27,37 +26,37 @@ void random_z(uint32_t *z) {
 void ini_curve() {
     Curve.a24 = a24R;
     Curve.pR2 = pR2;
-    for (int i=0; i<9; i++) {
-        Curve.p[i] = p[8-i];
+    for (int i=0; i<8; i++) {
+        Curve.p[i] = p[7-i];
     }
 }
 
 
 void to_Montgomery(uint32_t *x) {
-    uint32_t s[9];
+    uint32_t s[8];
     mont_mul_zxy0_mod_p(s, x, Curve.pR2, Curve.p);
-    for (uint32_t i=0;i<9;i++) x[i] = s[i];
+    for (uint32_t i=0;i<8;i++) x[i] = s[i];
 }
 
 
 void from_Montgomery(uint32_t *x) {
-    uint32_t s[9];
+    uint32_t s[8];
     mont_mul_zxy0_mod_p(s, x, 1, Curve.p);
-    for (uint32_t i=0;i<9;i++) x[i] = s[i];
+    for (uint32_t i=0;i<8;i++) x[i] = s[i];
 }
 
 
 void mod_inverse(uint32_t *z_inv, uint32_t *z) {
-    uint32_t z2[9];
-    uint32_t z9[9];
-    uint32_t z11[9];
-    uint32_t z2_5_0[9];
-    uint32_t z2_10_0[9];
-    uint32_t z2_20_0[9];
-    uint32_t z2_50_0[9];
-    uint32_t z2_100_0[9];
-    uint32_t t0[9];
-    uint32_t t1[9];
+    uint32_t z2[8];
+    uint32_t z9[8];
+    uint32_t z11[8];
+    uint32_t z2_5_0[8];
+    uint32_t z2_10_0[8];
+    uint32_t z2_20_0[8];
+    uint32_t z2_50_0[8];
+    uint32_t z2_100_0[8];
+    uint32_t t0[8];
+    uint32_t t1[8];
     uint32_t i;
 
     mont_mul_zxy_mod_p(z2, z, z, Curve.p);     // 2
@@ -134,12 +133,11 @@ void mod_inverse(uint32_t *z_inv, uint32_t *z) {
 void recover_y(uint32_t *x, uint32_t *y, uint32_t *z, uint32_t *xp, uint32_t *yp, uint32_t *xq, uint32_t *zq, uint32_t *xpq, uint32_t *zpq) {
     // https://eprint.iacr.org/2017/212.pdf
     uint32_t AR = 18493156;
-    uint32_t v1[9], v2[9], v3[9], v4[9], s[9], t[9];
+    uint32_t v1[8], v2[8], v3[8], v4[8], s[8], t[8];
     
     mont_mul_zxy_mod_p(v1, xp, zq, Curve.p);
     add_zxy_mod_p(v2, xq, v1, Curve.p);
-    sub_zxy(v3, Curve.p, v1);
-    add_zxy_mod_p(v3, xq, v3, Curve.p);
+    sub_zxy_mod_p(v3, xq, v1, Curve.p);
     mont_mul_zxy_mod_p(t, v3, v3, Curve.p);
     mont_mul_zxy_mod_p(v3, t, xpq, Curve.p);
     mont_mul_zxy0_mod_p(v1, zq, AR, Curve.p);
@@ -149,11 +147,9 @@ void recover_y(uint32_t *x, uint32_t *y, uint32_t *z, uint32_t *xp, uint32_t *yp
     add_zxy_mod_p(v4, v4, zq, Curve.p);
     mont_mul_zxy_mod_p(s, v2, v4, Curve.p);
     mont_mul_zxy_mod_p(t, v1, zq, Curve.p);
-    sub_zxy(t, Curve.p, t);
-    add_zxy_mod_p(s, s, t, Curve.p);
+    sub_zxy_mod_p(s, s, t, Curve.p);
     mont_mul_zxy_mod_p(v2, s, zpq, Curve.p);
-    sub_zxy(v3, Curve.p, v3);
-    add_zxy_mod_p(y, v2, v3, Curve.p);
+    sub_zxy_mod_p(y, v2, v3, Curve.p);
     add_zxy_mod_p(v1, yp, yp, Curve.p);
     mont_mul_zxy_mod_p(s, v1, zq, Curve.p);
     mont_mul_zxy_mod_p(v1, s, zpq, Curve.p);
@@ -164,18 +160,17 @@ void recover_y(uint32_t *x, uint32_t *y, uint32_t *z, uint32_t *xp, uint32_t *yp
 
 void montgomery2edward(uint32_t *x, uint32_t *y, uint32_t *u, uint32_t *v) {
     // (x, y) = (sqrt(-486664)*u/v, (u-1)/(u+1))
-    uint32_t s[9], t[9], w[9];
+    uint32_t s[8], t[8], w[8];
     
-    for (uint32_t i=1; i<9; i++) t[i] = 0;
+    for (uint32_t i=1; i<8; i++) t[i] = 0;
     t[0] = R;  // 1*R
     add_zxy_mod_p(s, u, t, Curve.p);  // s = u+1
     mont_mul_zxy_mod_p(w, s, v, Curve.p);
     mod_inverse(w, w); // w = (u+1)^(-1) * v^(-1)
-    sub_zxy(t, Curve.p, t);  // t = -1*R
-    add_zxy_mod_p(y, u, t, Curve.p);  // y = u-1
+    sub_zxy_mod_p(y, u, t, Curve.p);  // y = u-1
     mont_mul_zxy_mod_p(x, y, w, Curve.p);  // x = (u-1)/((u+1) * v)
     mont_mul_zxy_mod_p(y, x, v, Curve.p);
-    for (uint32_t i=0; i<9; i++) t[i] = sqrt_minus_486664R[8-i];
+    for (uint32_t i=0; i<8; i++) t[i] = sqrt_minus_486664R[7-i];
     mont_mul_zxy_mod_p(x, t, w, Curve.p);
     mont_mul_zxy_mod_p(t, x, s, Curve.p);
     mont_mul_zxy_mod_p(x, t, u, Curve.p);
@@ -200,11 +195,11 @@ void cswap(uint32_t swap, uint32_t **x, uint32_t **y) {
 
 void X25519(uint32_t *q, uint32_t *r, uint8_t *k, uint32_t *u, uint32_t *v, uint8_t toEdward) {
     // cpmputes q = k * u
-    uint32_t x1[9], x[2*9], z[2*9];
-    uint32_t *x2 = x; uint32_t *x3 = x+9;
-    uint32_t *z2 = z; uint32_t *z3 = z+9;
+    uint32_t x1[8], x[2*8], z[2*8];
+    uint32_t *x2 = x; uint32_t *x3 = x+8;
+    uint32_t *z2 = z; uint32_t *z3 = z+8;
     uint8_t swap, kt, kw;
-    uint32_t A[9], AA[9], B[9], BB[9], C[9], D[9], E[9], DA[9], CB[9];
+    uint32_t A[8], AA[8], B[8], BB[8], C[8], D[8], E[8], DA[8], CB[8];
     
     ini_curve();
 
@@ -217,9 +212,8 @@ void X25519(uint32_t *q, uint32_t *r, uint8_t *k, uint32_t *u, uint32_t *v, uint
         A[i] = u[i];
         z2[i] = 0;
     }
-    z2[8] = A[8] = 0;
     to_Montgomery(A);
-    for (uint32_t i=0; i<9; i++) x1[i] = A[i];
+    for (uint32_t i=0; i<8; i++) x1[i] = A[i];
     mont_mul_zxy_mod_p(x3, A, z3, Curve.p);
     
     swap = 0;
@@ -235,20 +229,16 @@ void X25519(uint32_t *q, uint32_t *r, uint8_t *k, uint32_t *u, uint32_t *v, uint
         
         add_zxy_mod_p(A, x2, z2, Curve.p);
         mont_mul_zxy_mod_p(AA, A, A, Curve.p);
-        sub_zxy(B, Curve.p, z2);
-        add_zxy_mod_p(B, x2, B, Curve.p);
+        sub_zxy_mod_p(B, x2, z2, Curve.p);
         mont_mul_zxy_mod_p(BB, B, B, Curve.p);
-        sub_zxy(E, Curve.p, BB);
-        add_zxy_mod_p(E, AA, E, Curve.p);
+        sub_zxy_mod_p(E, AA, BB, Curve.p);
         add_zxy_mod_p(C, x3, z3, Curve.p);
-        sub_zxy(D, Curve.p, z3);
-        add_zxy_mod_p(D, x3, D, Curve.p);
+        sub_zxy_mod_p(D, x3, z3, Curve.p);
         mont_mul_zxy_mod_p(DA, D, A, Curve.p);
         mont_mul_zxy_mod_p(CB, C, B, Curve.p);
         add_zxy_mod_p(A, DA, CB, Curve.p);
         mont_mul_zxy_mod_p(x3, A, A, Curve.p);
-        sub_zxy(A, Curve.p, CB);
-        add_zxy_mod_p(A, DA, A, Curve.p);
+        sub_zxy_mod_p(A, DA, CB, Curve.p);
         mont_mul_zxy_mod_p(B, A, A, Curve.p);
         mont_mul_zxy_mod_p(z3, x1, B, Curve.p);
         mont_mul_zxy_mod_p(x2, AA, BB, Curve.p);
@@ -265,7 +255,6 @@ void X25519(uint32_t *q, uint32_t *r, uint8_t *k, uint32_t *u, uint32_t *v, uint
             AA[i] = u[i];
             BB[i] = v[i];
         }
-        AA[8] = BB[8] = 0;
         to_Montgomery(AA);
         to_Montgomery(BB);
         recover_y(A, B, C, AA, BB, x2, z2, x3, z3);
@@ -273,7 +262,7 @@ void X25519(uint32_t *q, uint32_t *r, uint8_t *k, uint32_t *u, uint32_t *v, uint
         mont_mul_zxy_mod_p(q, A, C, Curve.p);
         mont_mul_zxy_mod_p(r, B, C, Curve.p);
         if (toEdward) {
-            for (uint32_t i=0; i<9; i++) {
+            for (uint32_t i=0; i<8; i++) {
                 A[i] = q[i];
                 B[i] = r[i];
             }

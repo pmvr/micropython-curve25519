@@ -26,13 +26,13 @@ Python script `x25519.py`
 
     Test vectors from https://tools.ietf.org/html/rfc8031#appendix-A
     Test 1: X25519: q = d*u
-    Computatation time: 40 ms
+    Computatation time: 39 ms
     q [hex/dec] = 66c7fb0d9f7090f777fa8493081ce8a4f174dbbbf9a36f16ba571206d4ddd548      46489245826987382655505058740283756869827209462947799117248009944518788765000
     Test 1 passed.
 
     Test 2: X25519 + y-coordinate recovery + transform to Edwards-curve
     (x, y) = Edward(q, r), (q, r) = d*(u, v)
-    Computatation time: 45 ms
+    Computatation time: 44 ms
     x [hex/dec] = 1ce7e6e3a747a25352df2d3155f06427ba389769e37755731dead2b54c5cef03      13074494971479542188989287385397236998770807488645203601973104535274459557635
     y [hex/dec] = 4dd1c7c2001c147333ceedf77ebd48b1100e2a95f88cf1f40d1b74ec7279e657      35198739055214410372845858661063095427357109357427482712729161712065293444695
     Test 2 passed.
@@ -41,23 +41,23 @@ Python script `x25519.py`
 Python script `ed25519.py`
 
     Test 1: Length of message: 0 bytes
-    Computatation time: 91 ms
+    Computatation time: 89 ms
     Test 1 passed.
 
     Test 2: Length of message: 1 byte
-    Computatation time: 91 ms
+    Computatation time: 90 ms
     Test 2 passed.
 
     Test 3: Length of message: 2 bytes
-    Computatation time: 91 ms
+    Computatation time: 90 ms
     Test 3 passed.
 
     Test 4: Length of message: 1023 bytes
-    Computatation time: 100 ms
+    Computatation time: 98 ms
     Test 4 passed.
 
     Test 5: Length of message: 64 bytes
-    Computatation time: 92 ms
+    Computatation time: 90 ms
     Test 5 passed.    
 
 ## Warning

@@ -1,9 +1,7 @@
  
 // Include the header file to get access to the MicroPython API
 #include "py/dynruntime.h"
-#include "arithmetic.h"
 #include "ec.h"
-
 
 // This is the function which will be called from Python
 STATIC mp_obj_t x25519(mp_obj_t k, mp_obj_t u) {

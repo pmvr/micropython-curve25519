@@ -132,7 +132,40 @@ void mul_zx0y0(uint32_t *z, uint32_t x, uint32_t y) {
     : : "r" (x), "r" (y), "r" (z) : "r5", "r6"
     );
 }
-    
+
+
+void pu(uint32_t *t, uint32_t u) {
+    // computes (2^255 -19) * u
+    __asm__ volatile (
+    "MOV    r3, 19\n"
+    "UMULL  r5, r6, r3, %1\n"
+    "MOV    r2, 0\n"
+    "LSRS   %1, %1, 1\n"
+    "RRXS   r2, r2\n"
+    "MOV    r3, 0\n"
+    "SUBS   r4, r3, r5\n"
+    "STMIA  %0!, {r4}\n"
+    "SBCS   r4, r3, r6\n"
+    "STMIA  %0!, {r4}\n"
+    "SBCS   r4, r3, r3\n"
+    "STMIA  %0!, {r4}\n"
+    "SBCS   r4, r3, r3\n"
+    "STMIA  %0!, {r4}\n"
+    "SBCS   r4, r3, r3\n"
+    "STMIA  %0!, {r4}\n"
+    "SBCS   r4, r3, r3\n"
+    "STMIA  %0!, {r4}\n"
+    "SBCS   r4, r3, r3\n"
+    "STMIA  %0!, {r4}\n"
+    "SBCS   r4, r2, r3\n"
+    "STMIA  %0!, {r4}\n"
+    "SBCS   r4, %1, r3\n"
+    "STMIA  %0, {r4}\n"
+    //"SUBS   %0, %0, 32\n"
+    : : "r" (t), "r" (u) : "r2", "r3", "r4", "r5", "r6"
+    );
+}
+
 
 void mont_mul_zxy_mod_p(uint32_t *z, uint32_t *x, uint32_t *y, uint32_t *p) {
     // see Alg. 14.36 HoAC
@@ -146,7 +179,8 @@ void mont_mul_zxy_mod_p(uint32_t *z, uint32_t *x, uint32_t *y, uint32_t *p) {
         u = (a[0] + x[i] * y[0]) * 678152731;
         mul_zxy(tmp, y, x[i]);
         a[8] += tmp[8] + add_zxy(a, a, tmp);
-        mul_zxy(tmp, p, u);
+        // mul_zxy(tmp, p, u);
+        pu(tmp, u);
         a[8] += tmp[8] + add_zxy(a, a, tmp);  // A <- (A + xi y + u m) / b
         for (int j=0; j<8; j++) a[j] = a[j+1];
         a[8] = 0;
@@ -168,7 +202,8 @@ void mont_mul_zxy0_mod_p(uint32_t *z, uint32_t *x, uint32_t y, uint32_t *p) {
         u = (a[0] + x[i] * y) * 678152731;
         mul_zx0y0(tmp, x[i], y);
         a[8] += tmp[8] + add_zxy(a, a, tmp);
-        mul_zxy(tmp, p, u);
+        // mul_zxy(tmp, p, u);
+        pu(tmp, u);
         a[8] += tmp[8] + add_zxy(a, a, tmp);  // A <- (A + xi y + u m) / b
         for (int j=0; j<8; j++) a[j] = a[j+1];
         a[8] = 0;

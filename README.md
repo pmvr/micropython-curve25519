@@ -2,7 +2,7 @@
 Implementation of X25519 and Ed25519 as a micropython mpy-module on a Pyboard
 
 ## Background
-[Curve25519]([https://cr.yp.to/ecdh.html) is a state-of-the-art for elliptic curve Diffie-Hellman, designed for both performance and security. Forthermore, it is used for Edwards-curve Digital Signature Algorithm ([EdDSA](https://tools.ietf.org/html/rfc8032)).
+[Curve25519](https://cr.yp.to/ecdh.html) is a state-of-the-art for elliptic curve Diffie-Hellman, designed for both performance and security. Furthermore, it is used for Edwards-curve Digital Signature Algorithm ([EdDSA](https://tools.ietf.org/html/rfc8032)).
 
 While the key exchange is refered by the function [X25519](https://tools.ietf.org/html/rfc8031), Ed25519 refers to the digital signature algorithm.
 
@@ -17,10 +17,10 @@ There are two modules in the `mpy-modules/` sub-directory:
 * One for the SHA512 `mpy-modules/sha512/`, where I modfied [this](https://github.com/routar/C-SHA2) code.
 * And one for X25519 `mpy-modules/curve25519/`.
 
-The the resulting two mpy-files have have to be copied to a Pyboard.
+After compilation to machine code, the two mpy-files have to be copied to a Pyboard.
 
 ## Results
-The results are received on a Pyboard ([STM32F722IEK](https://store.micropython.org/product/PYBD-SF2-W4F2)).
+The following results are received on a Pyboard ([STM32F722IEK](https://store.micropython.org/product/PYBD-SF2-W4F2)).
 ### X25519
 Python script `x25519.py`
 

@@ -11,7 +11,7 @@ print('Test 1: X25519: q = d*u')
 start = time.ticks_ms()  # get millisecond counter
 b = curve25519.x25519(d, u)
 delta = time.ticks_diff(time.ticks_ms(), start)  # compute time difference
-print('Computatation time: %d ms' % delta)
+print('Computation time: %d ms' % delta)
 q = int.from_bytes(b, 'little')
 print('q [hex/dec] = %x  %d' % (q, q))
 if q != 0x66c7fb0d9f7090f777fa8493081ce8a4f174dbbbf9a36f16ba571206d4ddd548:
@@ -26,7 +26,7 @@ print('(x, y) = Edward(q, r), (q, r) = d*(u, v)')
 start = time.ticks_ms()  # get millisecond counter
 b = curve25519.x25519_ed(d, u, v)
 delta = time.ticks_diff(time.ticks_ms(), start)  # compute time difference
-print('Computatation time: %d ms' % delta)
+print('Computation time: %d ms' % delta)
 x = int.from_bytes(b[0], 'little')
 y = int.from_bytes(b[1], 'little')
 print('x [hex/dec] = %x  %d' % (x, x))

@@ -1,6 +1,5 @@
-#include "py/dynruntime.h"
+#include "stdint.h"
 #include "arithmetic.h"
-#include "ec.h"
 
 const uint32_t a24R = 0x468ba6;
 const uint32_t p[8] = {0x7fffffff, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffed};

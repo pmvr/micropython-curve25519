@@ -1,4 +1,5 @@
-#include "py/dynruntime.h"
+#include "stdint.h"
+#include "ec.h"
 
 
 uint32_t add_zxy(uint32_t *z, uint32_t *x, uint32_t *y) {
@@ -179,7 +180,7 @@ void mul_add_zx0y0(uint32_t *z, uint32_t x, uint32_t y) {
 void pu_add_shift(uint32_t *t, uint32_t u) {
     // computes t = (t + (2^255 -19) * u) >> 32
     __asm__ volatile (
-    "MOV    r3, 19\n"
+    "MOV    r3, %2\n"
     "UMULL  r5, r6, r3, %1\n"    
     "MOV    r2, 0\n"
     "LSRS   %1, %1, 1\n"
@@ -224,7 +225,7 @@ void pu_add_shift(uint32_t *t, uint32_t u) {
     "STMIA  r2!, {r4}\n"
     "STMIA  r2, {r5}\n"  // ms-word = 0
     //"SUBS   %0, %0, 32\n"
-    : : "r" (t), "r" (u) : "r2", "r3", "r4", "r5", "r6"
+    : : "r" (t), "r" (u) , "r" (DIFF_P) : "r2", "r3", "r4", "r5", "r6"
     );
 }
 
@@ -238,7 +239,7 @@ void mont_mul_zxy_mod_p(uint32_t *z, uint32_t *x, uint32_t *y, uint32_t *p) {
     
     for (int i=0; i<9; i++) a[i] = 0;
     for (int i=0; i<8; i++) {
-        u = (a[0] + x[i] * y[0]) * 678152731;
+        u = (a[0] + x[i] * y[0]) * MINUS_IM;
         mul_add_zxy(a, y, x[i]);  // A <- A + xi y 
         pu_add_shift(a, u);  // A <- (A + u m) / b
     }
@@ -256,7 +257,7 @@ void mont_mul_zxy0_mod_p(uint32_t *z, uint32_t *x, uint32_t y, uint32_t *p) {
     
     for (int i=0; i<9; i++) a[i] = 0;
     for (int i=0; i<8; i++) {
-        u = (a[0] + x[i] * y) * 678152731;
+        u = (a[0] + x[i] * y) * MINUS_IM;
         mul_add_zx0y0(a, y, x[i]);  // A <- A + xi y
         pu_add_shift(a, u);  // A <- (A + u m) / b
     }

@@ -8,13 +8,7 @@ const uint32_t pR2 = 0x5a4;
 const uint32_t R = 38;
 const uint32_t sqrt_minus_486664R[8] = {0x4038adb9, 0xa83f001e, 0xc1bcaf57, 0x688c332e, 0xa9fa8eee, 0xcb6e1095, 0xa7ab4e9e, 0x1baf4abd};
 
-struct curve {
-    uint32_t a24;
-    uint32_t p[8];
-    uint32_t pR2;
-};
-
-struct curve Curve;
+uint32_t Curve_p[8];
 
 void random_z(uint32_t *z) {
     // TODO: a true random source should be provided
@@ -24,24 +18,22 @@ void random_z(uint32_t *z) {
 
 
 void ini_curve() {
-    Curve.a24 = a24R;
-    Curve.pR2 = pR2;
     for (int i=0; i<8; i++) {
-        Curve.p[i] = p[7-i];
+        Curve_p[i] = p[7-i];
     }
 }
 
 
 void to_Montgomery(uint32_t *x) {
     uint32_t s[8];
-    mont_mul_zxy0_mod_p(s, x, Curve.pR2, Curve.p);
+    mont_mul_zxy0_mod_p(s, x, pR2, Curve_p);
     for (uint32_t i=0;i<8;i++) x[i] = s[i];
 }
 
 
 void from_Montgomery(uint32_t *x) {
     uint32_t s[8];
-    mont_mul_zxy0_mod_p(s, x, 1, Curve.p);
+    mont_mul_zxy0_mod_p(s, x, 1, Curve_p);
     for (uint32_t i=0;i<8;i++) x[i] = s[i];
 }
 
@@ -59,75 +51,75 @@ void mod_inverse(uint32_t *z_inv, uint32_t *z) {
     uint32_t t1[8];
     uint32_t i;
 
-    mont_mul_zxy_mod_p(z2, z, z, Curve.p);     // 2
-    mont_mul_zxy_mod_p(t1, z2, z2, Curve.p);   // 4
-    mont_mul_zxy_mod_p(t0, t1, t1, Curve.p);   // 8
-    mont_mul_zxy_mod_p(z9, t0, z, Curve.p);    // 9
-    mont_mul_zxy_mod_p(z11, z9, z2, Curve.p);  // 11
-    mont_mul_zxy_mod_p(t0, z11, z11, Curve.p); // 22
-    mont_mul_zxy_mod_p(z2_5_0, t0, z9, Curve.p);  // 31 = 2^5 - 2^0
+    mont_mul_zxy_mod_p(z2, z, z, Curve_p);     // 2
+    mont_mul_zxy_mod_p(t1, z2, z2, Curve_p);   // 4
+    mont_mul_zxy_mod_p(t0, t1, t1, Curve_p);   // 8
+    mont_mul_zxy_mod_p(z9, t0, z, Curve_p);    // 9
+    mont_mul_zxy_mod_p(z11, z9, z2, Curve_p);  // 11
+    mont_mul_zxy_mod_p(t0, z11, z11, Curve_p); // 22
+    mont_mul_zxy_mod_p(z2_5_0, t0, z9, Curve_p);  // 31 = 2^5 - 2^0
 
-    mont_mul_zxy_mod_p(t0, z2_5_0, z2_5_0, Curve.p); // 2^6 - 2^1
-    mont_mul_zxy_mod_p(t1, t0, t0, Curve.p);   // 2^7 - 2^2
-    mont_mul_zxy_mod_p(t0, t1, t1, Curve.p);   // 2^8 - 2^3
-    mont_mul_zxy_mod_p(t1, t0, t0, Curve.p);   // 2^9 - 2^4
-    mont_mul_zxy_mod_p(t0, t1, t1, Curve.p);   // 2^10 - 2^5
-    mont_mul_zxy_mod_p(z2_10_0, t0, z2_5_0, Curve.p);   // 2^10 - 2^0
+    mont_mul_zxy_mod_p(t0, z2_5_0, z2_5_0, Curve_p); // 2^6 - 2^1
+    mont_mul_zxy_mod_p(t1, t0, t0, Curve_p);   // 2^7 - 2^2
+    mont_mul_zxy_mod_p(t0, t1, t1, Curve_p);   // 2^8 - 2^3
+    mont_mul_zxy_mod_p(t1, t0, t0, Curve_p);   // 2^9 - 2^4
+    mont_mul_zxy_mod_p(t0, t1, t1, Curve_p);   // 2^10 - 2^5
+    mont_mul_zxy_mod_p(z2_10_0, t0, z2_5_0, Curve_p);   // 2^10 - 2^0
     
-    mont_mul_zxy_mod_p(t0, z2_10_0, z2_10_0, Curve.p);  // 2^11 - 2^1
-    mont_mul_zxy_mod_p(t1, t0, t0, Curve.p);   // 2^12 - 2^2
+    mont_mul_zxy_mod_p(t0, z2_10_0, z2_10_0, Curve_p);  // 2^11 - 2^1
+    mont_mul_zxy_mod_p(t1, t0, t0, Curve_p);   // 2^12 - 2^2
     for (i = 2; i < 10; i += 2) {
-        mont_mul_zxy_mod_p(t0, t1, t1, Curve.p);
-        mont_mul_zxy_mod_p(t1, t0, t0, Curve.p);
+        mont_mul_zxy_mod_p(t0, t1, t1, Curve_p);
+        mont_mul_zxy_mod_p(t1, t0, t0, Curve_p);
     }  // 2^20 - 2^10
-    mont_mul_zxy_mod_p(z2_20_0, t1, z2_10_0, Curve.p);   // 2^20 - 2^0
+    mont_mul_zxy_mod_p(z2_20_0, t1, z2_10_0, Curve_p);   // 2^20 - 2^0
         
-    mont_mul_zxy_mod_p(t0, z2_20_0, z2_20_0, Curve.p);  // 2^21 - 2^1
-    mont_mul_zxy_mod_p(t1, t0, t0, Curve.p);   // 2^22 - 2^2
+    mont_mul_zxy_mod_p(t0, z2_20_0, z2_20_0, Curve_p);  // 2^21 - 2^1
+    mont_mul_zxy_mod_p(t1, t0, t0, Curve_p);   // 2^22 - 2^2
     for (i = 2; i < 20; i += 2) {
-        mont_mul_zxy_mod_p(t0, t1, t1, Curve.p);
-        mont_mul_zxy_mod_p(t1, t0, t0, Curve.p);
+        mont_mul_zxy_mod_p(t0, t1, t1, Curve_p);
+        mont_mul_zxy_mod_p(t1, t0, t0, Curve_p);
     }  // 2^40 - 2^20
-    mont_mul_zxy_mod_p(t0, t1, z2_20_0, Curve.p);   // 2^40 - 2^0
+    mont_mul_zxy_mod_p(t0, t1, z2_20_0, Curve_p);   // 2^40 - 2^0
 
-    mont_mul_zxy_mod_p(t1, t0, t0, Curve.p);   // 2^41 - 2^1
-    mont_mul_zxy_mod_p(t0, t1, t1, Curve.p);   // 2^42 - 2^2
+    mont_mul_zxy_mod_p(t1, t0, t0, Curve_p);   // 2^41 - 2^1
+    mont_mul_zxy_mod_p(t0, t1, t1, Curve_p);   // 2^42 - 2^2
     for (i = 2; i < 10; i += 2) {
-        mont_mul_zxy_mod_p(t1, t0, t0, Curve.p);
-        mont_mul_zxy_mod_p(t0, t1, t1, Curve.p);
+        mont_mul_zxy_mod_p(t1, t0, t0, Curve_p);
+        mont_mul_zxy_mod_p(t0, t1, t1, Curve_p);
     }  // 2^50 - 2^10
-    mont_mul_zxy_mod_p(z2_50_0, t0, z2_10_0, Curve.p);   // 2^50 - 2^0
+    mont_mul_zxy_mod_p(z2_50_0, t0, z2_10_0, Curve_p);   // 2^50 - 2^0
 
-    mont_mul_zxy_mod_p(t0, z2_50_0, z2_50_0, Curve.p);   // 2^51 - 2^1
-    mont_mul_zxy_mod_p(t1, t0, t0, Curve.p);   // 2^42 - 2^2
+    mont_mul_zxy_mod_p(t0, z2_50_0, z2_50_0, Curve_p);   // 2^51 - 2^1
+    mont_mul_zxy_mod_p(t1, t0, t0, Curve_p);   // 2^42 - 2^2
     for (i = 2; i < 50; i += 2) {
-        mont_mul_zxy_mod_p(t0, t1, t1, Curve.p);
-        mont_mul_zxy_mod_p(t1, t0, t0, Curve.p);
+        mont_mul_zxy_mod_p(t0, t1, t1, Curve_p);
+        mont_mul_zxy_mod_p(t1, t0, t0, Curve_p);
     }  // 2^100 - 2^50
-    mont_mul_zxy_mod_p(z2_100_0, t1, z2_50_0, Curve.p);   // 2^100 - 2^0
+    mont_mul_zxy_mod_p(z2_100_0, t1, z2_50_0, Curve_p);   // 2^100 - 2^0
 
-    mont_mul_zxy_mod_p(t1, z2_100_0, z2_100_0, Curve.p);   // 2^101 - 2^1
-    mont_mul_zxy_mod_p(t0, t1, t1, Curve.p);   // 2^102 - 2^2
+    mont_mul_zxy_mod_p(t1, z2_100_0, z2_100_0, Curve_p);   // 2^101 - 2^1
+    mont_mul_zxy_mod_p(t0, t1, t1, Curve_p);   // 2^102 - 2^2
     for (i = 2; i < 100; i += 2) {
-        mont_mul_zxy_mod_p(t1, t0, t0, Curve.p);
-        mont_mul_zxy_mod_p(t0, t1, t1, Curve.p);
+        mont_mul_zxy_mod_p(t1, t0, t0, Curve_p);
+        mont_mul_zxy_mod_p(t0, t1, t1, Curve_p);
     }  // 2^200 - 2^100
-    mont_mul_zxy_mod_p(t1, t0, z2_100_0, Curve.p);   // 2^200 - 2^0
+    mont_mul_zxy_mod_p(t1, t0, z2_100_0, Curve_p);   // 2^200 - 2^0
 
-    mont_mul_zxy_mod_p(t0, t1, t1, Curve.p);   // 2^201 - 2^1
-    mont_mul_zxy_mod_p(t1, t0, t0, Curve.p);   // 2^102 - 2^2
+    mont_mul_zxy_mod_p(t0, t1, t1, Curve_p);   // 2^201 - 2^1
+    mont_mul_zxy_mod_p(t1, t0, t0, Curve_p);   // 2^102 - 2^2
     for (i = 2; i < 50; i += 2) {
-        mont_mul_zxy_mod_p(t0, t1, t1, Curve.p);
-        mont_mul_zxy_mod_p(t1, t0, t0, Curve.p);
+        mont_mul_zxy_mod_p(t0, t1, t1, Curve_p);
+        mont_mul_zxy_mod_p(t1, t0, t0, Curve_p);
     }  // 2^250 - 2^50
-    mont_mul_zxy_mod_p(t0, t1, z2_50_0, Curve.p);   // 2^250 - 2^0
+    mont_mul_zxy_mod_p(t0, t1, z2_50_0, Curve_p);   // 2^250 - 2^0
 
-    mont_mul_zxy_mod_p(t1, t0, t0, Curve.p);  // 2^251 - 2^1
-    mont_mul_zxy_mod_p(t0, t1, t1, Curve.p);  // 2^252 - 2^2
-    mont_mul_zxy_mod_p(t1, t0, t0, Curve.p);  // 2^253 - 2^3
-    mont_mul_zxy_mod_p(t0, t1, t1, Curve.p);  // 2^254 - 2^4
-    mont_mul_zxy_mod_p(t1, t0, t0, Curve.p);  // 2^255 - 2^5
-    mont_mul_zxy_mod_p(z_inv, t1, z11, Curve.p);  // 2^255 - 21
+    mont_mul_zxy_mod_p(t1, t0, t0, Curve_p);  // 2^251 - 2^1
+    mont_mul_zxy_mod_p(t0, t1, t1, Curve_p);  // 2^252 - 2^2
+    mont_mul_zxy_mod_p(t1, t0, t0, Curve_p);  // 2^253 - 2^3
+    mont_mul_zxy_mod_p(t0, t1, t1, Curve_p);  // 2^254 - 2^4
+    mont_mul_zxy_mod_p(t1, t0, t0, Curve_p);  // 2^255 - 2^5
+    mont_mul_zxy_mod_p(z_inv, t1, z11, Curve_p);  // 2^255 - 21
 }
 
 void recover_y(uint32_t *x, uint32_t *y, uint32_t *z, uint32_t *xp, uint32_t *yp, uint32_t *xq, uint32_t *zq, uint32_t *xpq, uint32_t *zpq) {
@@ -135,26 +127,26 @@ void recover_y(uint32_t *x, uint32_t *y, uint32_t *z, uint32_t *xp, uint32_t *yp
     uint32_t AR = 18493156;
     uint32_t v1[8], v2[8], v3[8], v4[8], s[8], t[8];
     
-    mont_mul_zxy_mod_p(v1, xp, zq, Curve.p);
-    add_zxy_mod_p(v2, xq, v1, Curve.p);
-    sub_zxy_mod_p(v3, xq, v1, Curve.p);
-    mont_mul_zxy_mod_p(t, v3, v3, Curve.p);
-    mont_mul_zxy_mod_p(v3, t, xpq, Curve.p);
-    mont_mul_zxy0_mod_p(v1, zq, AR, Curve.p);
-    add_zxy_mod_p(v1, v1, v1, Curve.p);
-    add_zxy_mod_p(v2, v2, v1, Curve.p);
-    mont_mul_zxy_mod_p(v4, xp, xq, Curve.p);
-    add_zxy_mod_p(v4, v4, zq, Curve.p);
-    mont_mul_zxy_mod_p(s, v2, v4, Curve.p);
-    mont_mul_zxy_mod_p(t, v1, zq, Curve.p);
-    sub_zxy_mod_p(s, s, t, Curve.p);
-    mont_mul_zxy_mod_p(v2, s, zpq, Curve.p);
-    sub_zxy_mod_p(y, v2, v3, Curve.p);
-    add_zxy_mod_p(v1, yp, yp, Curve.p);
-    mont_mul_zxy_mod_p(s, v1, zq, Curve.p);
-    mont_mul_zxy_mod_p(v1, s, zpq, Curve.p);
-    mont_mul_zxy_mod_p(x, v1, xq, Curve.p);
-    mont_mul_zxy_mod_p(z, v1, zq, Curve.p);
+    mont_mul_zxy_mod_p(v1, xp, zq, Curve_p);
+    add_zxy_mod_p(v2, xq, v1, Curve_p);
+    sub_zxy_mod_p(v3, xq, v1, Curve_p);
+    mont_mul_zxy_mod_p(t, v3, v3, Curve_p);
+    mont_mul_zxy_mod_p(v3, t, xpq, Curve_p);
+    mont_mul_zxy0_mod_p(v1, zq, AR, Curve_p);
+    add_zxy_mod_p(v1, v1, v1, Curve_p);
+    add_zxy_mod_p(v2, v2, v1, Curve_p);
+    mont_mul_zxy_mod_p(v4, xp, xq, Curve_p);
+    add_zxy_mod_p(v4, v4, zq, Curve_p);
+    mont_mul_zxy_mod_p(s, v2, v4, Curve_p);
+    mont_mul_zxy_mod_p(t, v1, zq, Curve_p);
+    sub_zxy_mod_p(s, s, t, Curve_p);
+    mont_mul_zxy_mod_p(v2, s, zpq, Curve_p);
+    sub_zxy_mod_p(y, v2, v3, Curve_p);
+    add_zxy_mod_p(v1, yp, yp, Curve_p);
+    mont_mul_zxy_mod_p(s, v1, zq, Curve_p);
+    mont_mul_zxy_mod_p(v1, s, zpq, Curve_p);
+    mont_mul_zxy_mod_p(x, v1, xq, Curve_p);
+    mont_mul_zxy_mod_p(z, v1, zq, Curve_p);
 }
 
 
@@ -164,16 +156,16 @@ void montgomery2edward(uint32_t *x, uint32_t *y, uint32_t *u, uint32_t *v) {
     
     for (uint32_t i=1; i<8; i++) t[i] = 0;
     t[0] = R;  // 1*R
-    add_zxy_mod_p(s, u, t, Curve.p);  // s = u+1
-    mont_mul_zxy_mod_p(w, s, v, Curve.p);
+    add_zxy_mod_p(s, u, t, Curve_p);  // s = u+1
+    mont_mul_zxy_mod_p(w, s, v, Curve_p);
     mod_inverse(w, w); // w = (u+1)^(-1) * v^(-1)
-    sub_zxy_mod_p(y, u, t, Curve.p);  // y = u-1
-    mont_mul_zxy_mod_p(x, y, w, Curve.p);  // x = (u-1)/((u+1) * v)
-    mont_mul_zxy_mod_p(y, x, v, Curve.p);
+    sub_zxy_mod_p(y, u, t, Curve_p);  // y = u-1
+    mont_mul_zxy_mod_p(x, y, w, Curve_p);  // x = (u-1)/((u+1) * v)
+    mont_mul_zxy_mod_p(y, x, v, Curve_p);
     for (uint32_t i=0; i<8; i++) t[i] = sqrt_minus_486664R[7-i];
-    mont_mul_zxy_mod_p(x, t, w, Curve.p);
-    mont_mul_zxy_mod_p(t, x, s, Curve.p);
-    mont_mul_zxy_mod_p(x, t, u, Curve.p);
+    mont_mul_zxy_mod_p(x, t, w, Curve_p);
+    mont_mul_zxy_mod_p(t, x, s, Curve_p);
+    mont_mul_zxy_mod_p(x, t, u, Curve_p);
 }
 
 
@@ -214,7 +206,7 @@ void X25519(uint32_t *q, uint32_t *r, uint8_t *k, uint32_t *u, uint32_t *v, uint
     }
     to_Montgomery(A);
     for (uint32_t i=0; i<8; i++) x1[i] = A[i];
-    mont_mul_zxy_mod_p(x3, A, z3, Curve.p);
+    mont_mul_zxy_mod_p(x3, A, z3, Curve_p);
     
     swap = 0;
     kw = k[31];
@@ -227,24 +219,24 @@ void X25519(uint32_t *q, uint32_t *r, uint8_t *k, uint32_t *u, uint32_t *v, uint
         cswap(swap, &z2, &z3);
         swap = kt;
         
-        add_zxy_mod_p(A, x2, z2, Curve.p);
-        mont_mul_zxy_mod_p(AA, A, A, Curve.p);
-        sub_zxy_mod_p(B, x2, z2, Curve.p);
-        mont_mul_zxy_mod_p(BB, B, B, Curve.p);
-        sub_zxy_mod_p(E, AA, BB, Curve.p);
-        add_zxy_mod_p(C, x3, z3, Curve.p);
-        sub_zxy_mod_p(D, x3, z3, Curve.p);
-        mont_mul_zxy_mod_p(DA, D, A, Curve.p);
-        mont_mul_zxy_mod_p(CB, C, B, Curve.p);
-        add_zxy_mod_p(A, DA, CB, Curve.p);
-        mont_mul_zxy_mod_p(x3, A, A, Curve.p);
-        sub_zxy_mod_p(A, DA, CB, Curve.p);
-        mont_mul_zxy_mod_p(B, A, A, Curve.p);
-        mont_mul_zxy_mod_p(z3, x1, B, Curve.p);
-        mont_mul_zxy_mod_p(x2, AA, BB, Curve.p);
-        mont_mul_zxy0_mod_p(A, E, Curve.a24, Curve.p);
-        add_zxy_mod_p(AA, AA, A, Curve.p);
-        mont_mul_zxy_mod_p(z2, E, AA, Curve.p);
+        add_zxy_mod_p(A, x2, z2, Curve_p);
+        mont_mul_zxy_mod_p(AA, A, A, Curve_p);
+        sub_zxy_mod_p(B, x2, z2, Curve_p);
+        mont_mul_zxy_mod_p(BB, B, B, Curve_p);
+        sub_zxy_mod_p(E, AA, BB, Curve_p);
+        add_zxy_mod_p(C, x3, z3, Curve_p);
+        sub_zxy_mod_p(D, x3, z3, Curve_p);
+        mont_mul_zxy_mod_p(DA, D, A, Curve_p);
+        mont_mul_zxy_mod_p(CB, C, B, Curve_p);
+        add_zxy_mod_p(A, DA, CB, Curve_p);
+        mont_mul_zxy_mod_p(x3, A, A, Curve_p);
+        sub_zxy_mod_p(A, DA, CB, Curve_p);
+        mont_mul_zxy_mod_p(B, A, A, Curve_p);
+        mont_mul_zxy_mod_p(z3, x1, B, Curve_p);
+        mont_mul_zxy_mod_p(x2, AA, BB, Curve_p);
+        mont_mul_zxy0_mod_p(A, E, a24R, Curve_p);
+        add_zxy_mod_p(AA, AA, A, Curve_p);
+        mont_mul_zxy_mod_p(z2, E, AA, Curve_p);
     }
     // conditional swap
     cswap(swap, &x2, &x3);
@@ -259,8 +251,8 @@ void X25519(uint32_t *q, uint32_t *r, uint8_t *k, uint32_t *u, uint32_t *v, uint
         to_Montgomery(BB);
         recover_y(A, B, C, AA, BB, x2, z2, x3, z3);
         mod_inverse(C, C);
-        mont_mul_zxy_mod_p(q, A, C, Curve.p);
-        mont_mul_zxy_mod_p(r, B, C, Curve.p);
+        mont_mul_zxy_mod_p(q, A, C, Curve_p);
+        mont_mul_zxy_mod_p(r, B, C, Curve_p);
         if (toEdward) {
             for (uint32_t i=0; i<8; i++) {
                 A[i] = q[i];
@@ -274,7 +266,7 @@ void X25519(uint32_t *q, uint32_t *r, uint8_t *k, uint32_t *u, uint32_t *v, uint
         // compute x-only
         // compute z2^(-1) = z2^{p-2}
         mod_inverse(A, z2);
-        mont_mul_zxy_mod_p(q, x2, A, Curve.p);
+        mont_mul_zxy_mod_p(q, x2, A, Curve_p);
         from_Montgomery(q);
     }
 }

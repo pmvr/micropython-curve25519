@@ -23,63 +23,55 @@ void shift_right(uint32_t *x) {
 }
 
 
-uint32_t add9_zxy(uint32_t *z, uint32_t *x, uint32_t *y) {
+void add9_zxy(uint32_t *z, uint32_t *x, uint32_t *y) {
     // for mod_inverse, operates on 9 words
-    uint32_t carry;
     __asm__ volatile (
-    "LDMIA  %1!, {r3-r6}\n"
-    "LDMIA  %2!, {r7-r10}\n"
+    "LDMIA  %0!, {r3-r6}\n"
+    "LDMIA  %1!, {r7-r10}\n"
     "ADDS   r3, r3, r7\n"
     "ADCS   r4, r4, r8\n"
     "ADCS   r5, r5, r9\n"
     "ADCS   r6, r6, r10\n"
-    "STMIA  %3!, {r3-r6}\n"
-    "LDMIA  %1!, {r3-r6}\n"
-    "LDMIA  %2!, {r7-r10}\n"
+    "STMIA  %2!, {r3-r6}\n"
+    "LDMIA  %0!, {r3-r6}\n"
+    "LDMIA  %1!, {r7-r10}\n"
     "ADCS   r3, r3, r7\n"
     "ADCS   r4, r4, r8\n"
     "ADCS   r5, r5, r9\n"
     "ADCS   r6, r6, r10\n"
-    "STMIA  %3!, {r3-r6}\n"
-    "LDMIA  %1, {r3}\n"
-    "LDMIA  %2, {r7}\n"
+    "STMIA  %2!, {r3-r6}\n"
+    "LDMIA  %0, {r3}\n"
+    "LDMIA  %1, {r7}\n"
     "ADCS   r3, r3, r7\n"
-    "STMIA  %3, {r3}\n"
-    "MOV    %0, 0\n"
-    "ADCS   %0, %0, 0\n"
-    : "=r" (carry) : "r" (x), "r" (y), "r" (z) : "r3", "r4", "r5", "r6", "r7", "r8", "r9", "r10"
+    "STMIA  %2, {r3}\n"
+    : : "r" (x), "r" (y), "r" (z) : "r3", "r4", "r5", "r6", "r7", "r8", "r9", "r10"
     );
-    return carry;
 }
 
 
-uint32_t sub9_zxy(uint32_t *z, uint32_t *x, uint32_t *y) {
+void sub9_zxy(uint32_t *z, uint32_t *x, uint32_t *y) {
     // for mod_inverse, operates on 9 words
-    uint32_t carry;
     __asm__ volatile (
-    "LDMIA  %1!, {r3-r6}\n"
-    "LDMIA  %2!, {r7-r10}\n"
+    "LDMIA  %0!, {r3-r6}\n"
+    "LDMIA  %1!, {r7-r10}\n"
     "SUBS   r3, r3, r7\n"
     "SBCS   r4, r4, r8\n"
     "SBCS   r5, r5, r9\n"
     "SBCS   r6, r6, r10\n"
-    "STMIA  %3!, {r3-r6}\n"
-    "LDMIA  %1!, {r3-r6}\n"
-    "LDMIA  %2!, {r7-r10}\n"
+    "STMIA  %2!, {r3-r6}\n"
+    "LDMIA  %0!, {r3-r6}\n"
+    "LDMIA  %1!, {r7-r10}\n"
     "SBCS   r3, r3, r7\n"
     "SBCS   r4, r4, r8\n"
     "SBCS   r5, r5, r9\n"
     "SBCS   r6, r6, r10\n"
-    "STMIA  %3!, {r3-r6}\n"
-    "LDMIA  %1, {r3}\n"
-    "LDMIA  %2, {r7}\n"
+    "STMIA  %2!, {r3-r6}\n"
+    "LDMIA  %0, {r3}\n"
+    "LDMIA  %1, {r7}\n"
     "SBCS   r3, r3, r7\n"
-    "STMIA  %3, {r3}\n"
-    "MOV    %0, 0\n"
-    "ADCS   %0, %0, 0\n"
-    : "=r" (carry) : "r" (x), "r" (y), "r" (z) : "r3", "r4", "r5", "r6", "r7", "r8", "r9", "r10"
+    "STMIA  %2, {r3}\n"
+    : : "r" (x), "r" (y), "r" (z) : "r3", "r4", "r5", "r6", "r7", "r8", "r9", "r10"
     );
-    return carry;
 }
 
 
@@ -111,7 +103,8 @@ STEP_4:
         }
         shift_right(D);
     }
-    if (sub9_zxy(u, u, v) == 1) {  // u >= v
+    sub9_zxy(u, u, v);
+    if ((u[8] & 0x80000000) == 0) {  // u >= v
         sub9_zxy(B, B, D);
     }
     else {

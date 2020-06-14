@@ -41,15 +41,15 @@ Python script `x25519.py`
 Python script `ed25519.py`
 
     Test 1: Length of message: 0 bytes
-    Computation time: 53 ms
+    Computation time: 52 ms
     Test 1 passed.
 
     Test 2: Length of message: 1 byte
-    Computation time: 53 ms
+    Computation time: 52 ms
     Test 2 passed.
 
     Test 3: Length of message: 2 bytes
-    Computation time: 53 ms
+    Computation time: 52 ms
     Test 3 passed.
 
     Test 4: Length of message: 1023 bytes

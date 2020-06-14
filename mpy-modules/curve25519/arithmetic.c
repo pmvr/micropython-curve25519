@@ -104,7 +104,8 @@ STEP_4:
         shift_right(D);
     }
     sub9_zxy(u, u, v);
-    if ((u[8] & 0x80000000) == 0) {  // u >= v
+    if ((u[8] & 0x80000000) == 0) {
+        // u >= v
         sub9_zxy(B, B, D);
     }
     else {
@@ -112,16 +113,13 @@ STEP_4:
         sub9_zxy(v, v, u);
         sub9_zxy(D, D, B);
     }
-    uint32_t cmp = 0;
-    for (int i=0; i<9; i++) cmp |= u[i];
-    if (cmp == 0) {
-        if (D[8] & 0x80000000) {
-            add9_zxy(D, D, m);  // D < 0
-        }
-        for (uint32_t i=0; i<8; i++) y[i] = D[i];
-        return;
+    for (uint32_t i=0; i<9; i++) {
+        if (u[i] != 0) goto STEP_4;
     }
-    goto STEP_4;
+    if (D[8] & 0x80000000) {
+        add9_zxy(D, D, m);  // D < 0
+    }
+    for (uint32_t i=0; i<8; i++) y[i] = D[i];
 }
 
 

@@ -35,15 +35,15 @@ def secret_expand(secret):
 
 # The signature function works as below.
 def sign(secret, msg):
-    u = b'\x09' + bytes(35)
+    u = b'\x09' + bytes(31)
     v = b'\xd9\xd3\xce~\xa2\xc5\xe9)\xb2a|m~M=\x92L\xd1Hw,\xdd\x1e\xe0\xb4\x86\xa0\xb8\xa1\x19\xae \x00\x00\x00\x00'
     a, prefix = secret_expand(secret)
     # A = point_compress(point_mul(a, G))
-    xy = curve25519.x25519_ed(a.to_bytes(36, 'little'), u, v)
+    xy = curve25519.x25519_ed(a.to_bytes(32, 'little'), u, v)
     A = point_compress((int.from_bytes(xy[0], 'little'), int.from_bytes(xy[1], 'little')))
     r = sha512_modq(prefix + msg)
     # R = point_mul(r, G)
-    xy = curve25519.x25519_ed(r.to_bytes(36, 'little'), u, v)
+    xy = curve25519.x25519_ed(r.to_bytes(32, 'little'), u, v)
     R = (int.from_bytes(xy[0], 'little'), int.from_bytes(xy[1], 'little'))
     Rs = point_compress(R)
     h = sha512_modq(Rs + A + msg)

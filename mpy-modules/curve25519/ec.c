@@ -14,23 +14,13 @@ void random_z(uint32_t *z) {
 }
 
 
-void to_Montgomery(uint32_t *x) {
-    uint32_t s[8];
-    mont_mul_zxy0_mod_p(s, x, pR2, Curve_p);
-    for (uint32_t i=0;i<8;i++) x[i] = s[i];
-}
-
-
-void from_Montgomery(uint32_t *x) {
-    uint32_t s[8];
-    mont_mul_zxy0_mod_p(s, x, 1, Curve_p);
-    for (uint32_t i=0;i<8;i++) x[i] = s[i];
-}
+#define to_Montgomery(x) mont_mul_zxy0_mod_p(x, x, pR2, Curve_p);
+#define from_Montgomery(x) mont_mul_zxy0_mod_p(x, x, 1, Curve_p);
 
 
 void recover_y(uint32_t *x, uint32_t *y, uint32_t *z, uint32_t *xp, uint32_t *yp, uint32_t *xq, uint32_t *zq, uint32_t *xpq, uint32_t *zpq) {
     // https://eprint.iacr.org/2017/212.pdf
-    uint32_t AR = 18493156;
+    const uint32_t AR = 18493156;
     uint32_t v1[8], v2[8], v3[8], v4[8], s[8], t[8];
     
     mont_mul_zxy_mod_p(v1, xp, zq, Curve_p);
@@ -66,8 +56,8 @@ void montgomery2edward(uint32_t *x, uint32_t *y, uint32_t *u, uint32_t *v) {
     mont_mul_zxy_mod_p(w, s, v, Curve_p);
     // mod_inverse(w, w); // w = (u+1)^(-1) * v^(-1)
     mod_inverse(Curve_p, w);
-    mont_mul_zxy0_mod_p(w, w, pR2, Curve_p);
-    mont_mul_zxy0_mod_p(w, w, pR2, Curve_p);
+    to_Montgomery(w);
+    to_Montgomery(w);
     sub_zxy_mod_p(y, u, t, Curve_p);  // y = u-1
     mont_mul_zxy_mod_p(x, y, w, Curve_p);  // x = (u-1)/((u+1) * v)
     mont_mul_zxy_mod_p(y, x, v, Curve_p);
@@ -169,7 +159,7 @@ void X25519(uint32_t *q, uint32_t *r, uint8_t *k, uint32_t *u, uint32_t *v, uint
         }
     } else {
         // compute x-only
-        // compute z2^(-1) = z2^{p-2}
+        // compute z2^(-1)
         from_Montgomery(z2);
         mod_inverse(Curve_p, z2);
         mont_mul_zxy_mod_p(q, x2, z2, Curve_p);
